@@ -3,9 +3,6 @@ from game_state import GameState, check_collision, show_game_over, update_obstac
 from render_state import draw_player, draw_obstacles
 import constants 
 
-
-
-
 def handle_input(game_state):
     """Handle player input events"""
     for event in pygame.event.get():
