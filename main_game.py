@@ -19,7 +19,8 @@ def check_collision(player_lane,player_Y,obstacles, Lane_X):
 
 def show_game_over(screen,score):
     overlay = pygame.Surface((900, 600))
-    overlay.fill((0, 0, 0, 128))  # Semi-transparent black
+    overlay.set_alpha(128) 
+    overlay.fill((0, 0, 0))
     screen.blit(overlay, (0, 0))
     
     font = pygame.font.Font(None, 74)
@@ -57,7 +58,10 @@ def initialize_game():
     player_Y = 500
     
     score = 0
+    obstacle_avoided = 0
+    survival_time = 0
     font = pygame.font.Font(None, 36)
+    
     # Obstacle management
     obstacles = []
     obstacle_spawn_timer = 0
@@ -81,10 +85,24 @@ def initialize_game():
                         player_lane += 1
 
         screen.fill((150, 245, 255))
-
-        score+=1
-        score_text = font.render(f"Score: {score}", True, (0, 0, 0))
+        
+        
+        for obstacle in obstacles:
+            if obstacle['y'] > player_Y + 50:
+                if not obstacle.get('counted', False):
+                    obstacle_avoided += 1
+                    score += 10
+                    obstacle['counted'] = True
+        
+        
+        survival_time += 1
+        base_score = survival_time // 10
+        bonus_score = obstacle_avoided * 10
+        score = base_score + bonus_score
+        
+        score_text = font.render(f"Score: {score}, Obstacles Avoided: {obstacle_avoided}", True, (0, 0, 0))
         screen.blit(score_text, (10, 10))
+        
         # Spawn new obstacles periodically
         obstacle_spawn_timer += 1
         if obstacle_spawn_timer > 80:
