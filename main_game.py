@@ -1,6 +1,6 @@
 import pygame
-from game_state import GameState, check_collision, show_game_over, update_obstacles
-from render_state import draw_player, draw_obstacles
+from game_state import GameState, check_collision, update_obstacles
+from render_state import draw_player, draw_obstacles, show_game_over
 import constants 
 
 def handle_input(game_state):
@@ -21,7 +21,7 @@ def run_game():
     """Main game loop with optimized structure"""
     pygame.init()
     screen = pygame.display.set_mode((constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT))
-    pygame.display.set_caption("Temple Run - Optimized")
+    pygame.display.set_caption("Temple Run")
     clock = pygame.time.Clock()
     
     # Pre-create font objects to avoid recreation
