@@ -15,6 +15,7 @@ class Environment:
             self.game_state.move_player(-1)
         elif action == 2:  # Move right
             self.game_state.move_player(1)
+        
         update_obstacles(self.game_state)
         
         if check_collision(self.game_state):
