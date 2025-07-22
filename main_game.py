@@ -1,9 +1,10 @@
 import pygame
 from game_state import GameState, check_collision, update_obstacles
-from render_state import draw_player, draw_obstacles, show_game_over
+from render_state import draw_obstacles, show_game_over
+from player import Player
 import constants 
 
-def handle_input(game_state):
+def handle_input(player, game_state):
     """Handle player input events"""
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -12,9 +13,9 @@ def handle_input(game_state):
         
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_LEFT or event.key == pygame.K_a:
-                game_state.move_player(-1)
+                player.move_player(-1)
             elif event.key == pygame.K_RIGHT or event.key == pygame.K_d:
-                game_state.move_player(1)
+                player.move_player(1)
     return True
 
 def run_game():
@@ -28,20 +29,22 @@ def run_game():
     score_font = pygame.font.Font(None, 36)
     
     game_state = GameState()
-    
+    player = Player()
+
     while game_state.running:
         # Handle input
-        if not handle_input(game_state):
+        if not handle_input(player, game_state):
             break
         
         # Update game state
-        game_state.update_score()
-        update_obstacles(game_state)
-        
+        player.update_score()
+        update_obstacles(game_state, player)
+
         # Check collision
-        if check_collision(game_state):
-            if show_game_over(screen, game_state.score):
+        if check_collision(game_state, player):
+            if show_game_over(screen, player.score):
                 game_state.reset()  # Restart game
+                player = Player()  # Reset player
             else:
                 break  # Quit game
         
@@ -56,11 +59,11 @@ def run_game():
         draw_obstacles(screen, game_state.obstacles)
         
         # Draw player
-        draw_player(screen, game_state)
-        
+        player.draw_player(screen)
+
         # Draw UI
         score_text = score_font.render(
-            f"Score: {game_state.score}, Obstacles Avoided: {game_state.obstacle_avoided}", 
+            f"Score: {player.score}, Obstacles Avoided: {player.obstacle_avoided}", 
             True, constants.TEXT_COLOR
         )
         screen.blit(score_text, (10, 10))
