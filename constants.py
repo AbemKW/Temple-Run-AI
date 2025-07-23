@@ -32,3 +32,6 @@ DIFFICULTY_LEVELS = [
     {"threshold": 100, "speed": 5, "multiplier": 1.5, "spawn_mod": 3},
     {"threshold": 200, "speed": 10, "multiplier": 2, "spawn_mod": 5}
 ]
+
+# Population
+POPULATION_SIZE = 100
