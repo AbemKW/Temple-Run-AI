@@ -2,51 +2,69 @@ import pygame
 from game_state import GameState, check_collision, update_obstacles
 from render_state import draw_obstacles, show_game_over
 from player import Player
+import generation
 import constants 
 
-def handle_input(player, game_state):
+def handle_input( game_state):
     """Handle player input events"""
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             game_state.running = False
             return False
-        
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_LEFT or event.key == pygame.K_a:
-                player.move_player(-1)
-            elif event.key == pygame.K_RIGHT or event.key == pygame.K_d:
-                player.move_player(1)
-    return True
+    return True  # Continue running if no quit event
+
 
 def run_game():
     """Main game loop with optimized structure"""
     pygame.init()
     screen = pygame.display.set_mode((constants.SCREEN_WIDTH, constants.SCREEN_HEIGHT))
-    pygame.display.set_caption("Temple Run")
+    pygame.display.set_caption("Temple Run AI")
     clock = pygame.time.Clock()
+
+    players : list[Player] = []
+    test_population = min(constants.POPULATION_SIZE, 5)  # Limit to 5 for debugging
+    for i in range(test_population):
+        player = Player()
+        players.append(player)
+    saved_players = []
+    print(f"Game window created successfully! Starting with {test_population} players")  # Debug output
+    print("Look for the 'Temple Run AI' window - it should be visible now!")
     
     # Pre-create font objects to avoid recreation
     score_font = pygame.font.Font(None, 36)
     
     game_state = GameState()
-    player = Player()
+    active_players = players.copy()  # Start with all players active
+    print("Starting game loop...")  # Debug output
 
     while game_state.running:
         # Handle input
-        if not handle_input(player, game_state):
+        if not handle_input(game_state):
             break
         
-        # Update game state
-        player.update_score()
-        update_obstacles(game_state, player)
+        if not active_players:
+            print("All players have died")
+            players = generation.NewGeneration(saved_players)
+            game_state.reset()
+            
+        # Update all players
+        active_players = [p for p in players if not p.game_over]
 
-        # Check collision
-        if check_collision(game_state, player):
-            if show_game_over(screen, player.score):
-                game_state.reset()  # Restart game
-                player = Player()  # Reset player
-            else:
-                break  # Quit game
+        for player in active_players:
+            player.think(game_state)  # AI decision-making
+            player.update_score()
+            
+        if active_players:
+            best_player = max(active_players, key=lambda p: p.score)
+            # Update obstacles once per frame (using first active player for difficulty)
+            update_obstacles(game_state, best_player)
+        
+        # Check for collisions for all active players
+        for player in active_players:
+            if check_collision(game_state, player):
+                saved_players.append(player)
+                player.game_over = True
+                print(f"Player died! Score: {player.score}, Active players: {len([p for p in players if not p.game_over])}")
         
         # Render everything
         screen.fill(constants.BACKGROUND_COLOR)
@@ -58,15 +76,18 @@ def run_game():
         # Draw obstacles
         draw_obstacles(screen, game_state.obstacles)
         
-        # Draw player
-        player.draw_player(screen)
+        # Draw all active players
+        for player in active_players:
+            player.draw_player(screen)
 
-        # Draw UI
-        score_text = score_font.render(
-            f"Score: {player.score}, Obstacles Avoided: {player.obstacle_avoided}", 
-            True, constants.TEXT_COLOR
-        )
-        screen.blit(score_text, (10, 10))
+        # Draw UI for the first active player (or best performing player)
+        if active_players:
+            best_player = max(active_players, key=lambda p: p.score)
+            score_text = score_font.render(
+                f"Score: {best_player.score}, Obstacles Avoided: {best_player.obstacle_avoided}, Active: {len(active_players)}", 
+                True, constants.TEXT_COLOR
+            )
+            screen.blit(score_text, (10, 10))
         
         pygame.display.flip()
         clock.tick(constants.FPS)
