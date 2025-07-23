@@ -4,14 +4,14 @@ from model import NeuralNetwork
 
 
 class Player:
-    def __init__(self, brain = False):
+    def __init__(self, brain = None):
         self.score = 0
         self.fitness = 0
         self.player_lane = 1
         self.survival_time = 0
         self.obstacle_avoided = 0
         self.game_over = False
-        if(brain):
+        if(brain is not None):
             self.brain = brain
         else:
             self.brain = NeuralNetwork(5,10,3)
