@@ -1,6 +1,6 @@
 import pygame
 from game_state import GameState, check_collision, update_obstacles
-from render_state import draw_obstacles, show_game_over
+from render_state import draw_obstacles
 from player import Player
 import generation
 import constants 
@@ -22,12 +22,11 @@ def run_game():
     clock = pygame.time.Clock()
 
     players : list[Player] = []
-    test_population = min(constants.POPULATION_SIZE, 5)  # Limit to 5 for debugging
-    for i in range(test_population):
+    for i in range(constants.POPULATION_SIZE):
         player = Player()
         players.append(player)
     saved_players = []
-    print(f"Game window created successfully! Starting with {test_population} players")  # Debug output
+    print(f"Game window created successfully! Starting with {constants.POPULATION_SIZE} players")  # Debug output
     print("Look for the 'Temple Run AI' window - it should be visible now!")
     
     # Pre-create font objects to avoid recreation
@@ -45,6 +44,7 @@ def run_game():
         if not active_players:
             print("All players have died")
             players = generation.NewGeneration(saved_players)
+            saved_players.clear()  # Clear saved players for the new generation
             game_state.reset()
             
         # Update all players
@@ -65,7 +65,7 @@ def run_game():
                 saved_players.append(player)
                 player.game_over = True
                 print(f"Player died! Score: {player.score}, Active players: {len([p for p in players if not p.game_over])}")
-        
+            
         # Render everything
         screen.fill(constants.BACKGROUND_COLOR)
         
