@@ -57,6 +57,6 @@ class NeuralNetwork:
         hidden_output = np.dot(self.weights_input_hidden, inputs) + self.biases_hidden
         hidden_output = self.tanh(hidden_output)
         raw_output = np.dot(self.weights_hidden_output, hidden_output) + self.biases_output
-        predictions = softmax(raw_output)
-        action = np.argmax(predictions)
+        # predictions = softmax(raw_output)
+        action = np.argmax(raw_output)
         return action
