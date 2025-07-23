@@ -24,7 +24,7 @@ def check_collision(game_state, player):
     player_rect = player.player_rect
     for obstacle in game_state.obstacles:
         obstacle_rect = pygame.Rect(
-            obstacle['x'] - constants.OBSTACLE_WIDTH // 2, 
+            obstacle['x'] - constants.OBSTACLE_WIDTH // 2,
             obstacle['y'], 
             constants.OBSTACLE_WIDTH, 
             constants.OBSTACLE_HEIGHT

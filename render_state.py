@@ -11,6 +11,7 @@ def draw_obstacles(screen, obstacles):
             constants.OBSTACLE_HEIGHT
         )
         pygame.draw.rect(screen, constants.OBSTACLE_COLOR, obstacle_rect)
+'''        
 def show_game_over(screen, score):
     """Optimized game over screen with pre-created surfaces"""
     # Create semi-transparent overlay
@@ -51,3 +52,4 @@ def show_game_over(screen, score):
                     pygame.quit()
                     return False
     return False
+'''
