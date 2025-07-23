@@ -1,4 +1,3 @@
-import environment
 import numpy as np
 # full connected multi-layer neural network model
 # inference only
@@ -19,9 +18,19 @@ class NeuralNetwork:
 
         self.biases_hidden = np.random.uniform(-1, 1, (self.hidden_nodes))
         self.biases_output = np.random.uniform(-1, 1, (self.output_nodes))
-    def forward(self, inputs):
+    
+    def sigmoid(self, x):
+        """Sigmoid activation function"""
+        return 1 / (1 + np.exp(-np.clip(x, -500, 500)))  # Clip to prevent overflow
+    
+    def tanh(self, x):
+        """Tanh activation function - ideal for neuroevolution"""
+        return np.tanh(np.clip(x, -500, 500))  # Clip to prevent overflow
+    
+    def predict(self, inputs):
         hidden_output = np.dot(self.weights_input_hidden, inputs) + self.biases_hidden
-        hidden_output = self.sigmoid(hidden_output)
-        final_output = np.dot(self.weights_hidden_output, hidden_output) + self.biases_output
-        final_output = softmax(final_output)
-        return final_output
+        hidden_output = self.tanh(hidden_output)
+        raw_output = np.dot(self.weights_hidden_output, hidden_output) + self.biases_output
+        predictions = softmax(raw_output)
+        action = np.argmax(predictions)
+        return action
