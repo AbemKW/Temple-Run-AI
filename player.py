@@ -62,9 +62,38 @@ class Player:
         elif self.fitness > 0.77:
             return constants.PLAYER_COLOR[2]["color"]
     def draw_player(self, screen):
-        """Optimized player drawing using pre-calculated rect"""
+        """Draw player as a pixelated circle"""
         player_color_fitness = self.get_color()
-        pygame.draw.rect(screen, player_color_fitness, self.player_rect)
+        
+        # Get center position of the player
+        center_x = self.player_rect.centerx
+        center_y = self.player_rect.centery
+        
+        # Create a pixelated circle using small squares
+        pixel_size = 3
+        radius = 8  # Radius in pixels
+        
+        # Create a darker outline color
+        outline_color = tuple(max(0, c - 50) for c in player_color_fitness[:3])
+        
+        # Draw pixelated circle by drawing squares in a circular pattern
+        for y in range(-radius, radius + 1):
+            for x in range(-radius, radius + 1):
+                # Check if this pixel is within the circle
+                distance = (x * x + y * y) ** 0.5
+                
+                if distance <= radius:
+                    pixel_x = center_x + x * pixel_size
+                    pixel_y = center_y + y * pixel_size
+                    
+                    # Draw outline for edge pixels
+                    if distance > radius - 1.5:
+                        pygame.draw.rect(screen, outline_color, 
+                                       pygame.Rect(pixel_x, pixel_y, pixel_size, pixel_size))
+                    else:
+                        # Draw filled pixels
+                        pygame.draw.rect(screen, player_color_fitness,
+                                       pygame.Rect(pixel_x, pixel_y, pixel_size, pixel_size))
 
     def get_state(self, game_state):
         """Get the current state for AI decision making"""
