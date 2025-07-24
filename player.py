@@ -17,7 +17,7 @@ class Player:
         if(brain is not None):
             self.brain = brain
         else:
-            self.brain = NeuralNetwork(8,4,3)
+            self.brain = NeuralNetwork(8,8,3)
         self.player_rect = pygame.Rect(
             constants.LANE_X[self.player_lane] - constants.PLAYER_WIDTH // 2, 
             constants.PLAYER_Y, 

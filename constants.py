@@ -30,9 +30,11 @@ TEXT_COLOR = (0, 0, 0)
 
 # Difficulty settings
 DIFFICULTY_LEVELS = [
-    {"threshold": 0, "speed": 3, "multiplier": 1, "spawn_mod": 1},
-    {"threshold": 100, "speed": 5, "multiplier": 1.5, "spawn_mod": 3},
-    {"threshold": 200, "speed": 10, "multiplier": 2, "spawn_mod": 5}
+    {"threshold": 0, "speed": 5, "multiplier": 1, "spawn_mod": 3},
+    {"threshold": 100, "speed": 8, "multiplier": 1.5, "spawn_mod": 5},
+    {"threshold": 200, "speed": 10, "multiplier": 2, "spawn_mod": 8},
+    {"threshold": 400, "speed": 15, "multiplier": 2.5, "spawn_mod": 10},
+    {"threshold": 800, "speed": 20, "multiplier": 3, "spawn_mod": 15}
 ]
 
-POPULATION_SIZE = 100
+POPULATION_SIZE = 1000

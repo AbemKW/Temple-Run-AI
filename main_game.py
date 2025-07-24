@@ -1,5 +1,5 @@
 import pygame
-from game_state import GameState, check_collision, update_obstacles, count_obstacles_passed
+from game_state import GameState, check_collision, update_obstacles
 from render_state import draw_obstacles
 from player import Player
 import generation
@@ -111,8 +111,6 @@ def run_game():
             best_player = max(active_players, key=lambda p: p.score)
             # Update obstacles once per frame (using first active player for difficulty)
             update_obstacles(game_state, best_player)
-        for player in active_players:
-            count_obstacles_passed(game_state, player)
         # Check for collisions for all active players
         for player in active_players:
             if check_collision(game_state, player):
@@ -133,13 +131,13 @@ def run_game():
         draw_obstacles(screen, game_state.obstacles)
         
         # Draw all active players
-        for player in active_players:
-            player.draw_player(screen)
+        #for player in active_players:
+         #   player.draw_player(screen)
 
         # Draw UI for the first active player (or best performing player)
         if active_players:
             best_player = max(active_players, key=lambda p: p.score)
-            #best_player.draw_player(screen)
+            best_player.draw_player(screen)
             score_text = score_font.render(
                 f"Score: {best_player.score}, Obstacles Avoided: {best_player.obstacle_avoided}, Active: {len(active_players)}", 
                 True, constants.TEXT_COLOR

@@ -32,21 +32,16 @@ def check_collision(game_state, player):
         if player_rect.colliderect(obstacle_rect):
             return True
     return False
-def count_obstacles_passed(game_state, player):
-    for obstacle in game_state.obstacles:
-        obstacle_id = id(obstacle)  # Use object ID as unique identifier
-        
-        if (obstacle['y'] > constants.PLAYER_Y + constants.PLAYER_HEIGHT and 
-            obstacle_id not in player.passed_obstacles):
-            
-            player.obstacle_avoided += 1
-            player.passed_obstacles.append(obstacle_id)
     
 def update_obstacles(game_state, player):
     """Optimized obstacle management"""
     difficulty = game_state.get_difficulty_settings(player)
     obstacle_speed = difficulty["speed"]
     
+    for obstacle in game_state.obstacles:
+        if obstacle['y'] > constants.PLAYER_Y + constants.PLAYER_HEIGHT and not obstacle.get('counted', False):
+            player.obstacle_avoided += 1
+            obstacle['counted'] = True
     # Update obstacle spawn timer
     game_state.obstacle_spawn_timer += difficulty["spawn_mod"]
     
@@ -55,7 +50,8 @@ def update_obstacles(game_state, player):
         random_lane = random.randint(0, constants.NUM_LANES - 1)
         game_state.obstacles.append({
             'x': constants.LANE_X[random_lane],
-            'y': -50
+            'y': -50,
+            'counted':False
         })
         game_state.obstacle_spawn_timer = 0
     
