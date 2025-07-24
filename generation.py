@@ -15,10 +15,15 @@ def NewGeneration(saved_players):
     
     players = calculate_fitness(saved_players)
     
+    # Calculate population diversity for adaptive mutation
+    diversity = calculate_population_diversity(players)
+    print(f"Population diversity: {diversity:.3f}")
+    
     players.sort(key=lambda p: p.fitness, reverse=True)
     
-    # Take top 30% as elite
-    elite_count = int(constants.POPULATION_SIZE * 0.3)  # 30% of population
+    # Dynamic elite percentage based on diversity
+    elite_percentage = 0.2 if diversity > 0.3 else 0.4  # More elites when low diversity
+    elite_count = max(1, int(constants.POPULATION_SIZE * elite_percentage))
     elite = players[:elite_count]
     
     # Reset elite players for new generation
@@ -33,10 +38,32 @@ def NewGeneration(saved_players):
         parent2 = weighted_selection(players)
         # Crossover
         child_brain = crossover(parent1.brain, parent2.brain)
-        child_brain.set_genome(mutate_genome(child_brain.get_genome()))
+        child_brain.set_genome(mutate_genome(child_brain.get_genome(), generation_diversity=diversity))
         new_players.append(Player(child_brain))
         
     return new_players
+
+def calculate_population_diversity(players):
+    """Calculate genetic diversity of the population"""
+    if len(players) < 2:
+        return 1.0
+    
+    total_distance = 0
+    comparisons = 0
+    
+    # Sample subset for performance
+    sample_size = min(50, len(players))
+    sampled_players = random.sample(players, sample_size)
+    
+    for i in range(len(sampled_players)):
+        for j in range(i + 1, len(sampled_players)):
+            genome1 = sampled_players[i].brain.get_genome()
+            genome2 = sampled_players[j].brain.get_genome()
+            distance = np.mean(np.abs(genome1 - genome2))
+            total_distance += distance
+            comparisons += 1
+    
+    return min(1.0, total_distance / comparisons) if comparisons > 0 else 1.0
 
 def crossover(parent1_brain, parent2_brain):
     """Crossover between two parent brains to create a child brain"""
@@ -46,21 +73,27 @@ def crossover(parent1_brain, parent2_brain):
     # Blend crossover: create child genome by blending parent genes
     child_genome = np.zeros_like(genome1)
     for i in range(len(genome1)):
-        # For each gene, select random value between the two parent values
-        min_val = min(genome1[i], genome2[i])
-        max_val = max(genome1[i], genome2[i])
-        child_genome[i] = np.random.uniform(min_val, max_val)
-    child_genome = mutate_genome(child_genome)
+        if random.random() < 0.5:
+            child_genome[i] = genome1[i]
+        else:
+            child_genome[i] = genome2[i]
     child_brain = NeuralNetwork(parent1_brain.input_nodes, parent1_brain.hidden_nodes, parent1_brain.output_nodes)
     child_brain.set_genome(child_genome)
     return child_brain
 
-def mutate_genome(genome, mutation_rate=0.01):
-    """Mutate the genome with a given mutation rate"""
+def mutate_genome(genome, mutation_rate=0.01, generation_diversity=1.0):
+    """Adaptive mutation based on population diversity"""
+    # Increase mutation rate when diversity is low
+    adaptive_rate = mutation_rate * (2.0 - generation_diversity)
+    
     for i in range(len(genome)):
-        if random.random() < mutation_rate:
-            mutation_value = np.random.uniform(-0.5, 0.5)  # Small mutation
+        if random.random() < adaptive_rate:
+            # Gaussian mutation instead of uniform
+            mutation_strength = 0.1 if generation_diversity > 0.5 else 0.3
+            mutation_value = np.random.normal(0, mutation_strength)
             genome[i] += mutation_value
+            # Clamp to reasonable bounds
+            genome[i] = np.clip(genome[i], -2.0, 2.0)
     return genome
 
 def calculate_fitness(players):
@@ -77,7 +110,19 @@ def calculate_fitness(players):
     max_survival_time = max(max_survival_time, 1)
     max_moves_made = max(max_moves_made, 1)
     for player in players:
-        player.fitness = player.score ** 3
+        # Streamlined fitness function - score already includes survival time and obstacles avoided
+        score_component = (player.score / max_score) * 0.8
+        
+        # Movement efficiency bonus (reward smart movement patterns)
+        if player.moves_made > 0:
+            move_efficiency = min(1.0, player.obstacle_avoided / player.moves_made)
+            efficiency_bonus = move_efficiency * 0.2
+        else:
+            # Small penalty for never moving (could be stuck)
+            efficiency_bonus = 0.1 if player.survival_time > 50 else 0.0
+        
+        # Combine components
+        player.fitness = (score_component + efficiency_bonus) ** 2
 
     # Normalize fitness values
     max_fitness = sum(player.fitness for player in players) if players else 1

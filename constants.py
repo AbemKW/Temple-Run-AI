@@ -35,12 +35,5 @@ DIFFICULTY_LEVELS = [
     {"threshold": 200, "speed": 10, "multiplier": 2, "spawn_mod": 5}
 ]
 
-# Population
-POPULATION_SIZE = 1000
-
-# Weights for fitness calculation
-SCORE_WEIGHT = 0.3
-SURVIVAL_WEIGHT = 0.3
-OBSTACLE_WEIGHT = 0.2
-EFFICIENCY_WEIGHT = 0.1
-MOVE_EFFICIENCY_WEIGHT = 0.1
+# Population - Smaller for faster training
+POPULATION_SIZE = 200
