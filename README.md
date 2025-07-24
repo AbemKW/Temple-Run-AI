@@ -2,7 +2,7 @@
 
 A sophisticated AI implementation that learns to play an endless runner game using neuroevolution and genetic algorithms. The project demonstrates advanced machine learning concepts including neural network optimization, population-based learning, and real-time game AI.
 
-## 🚀 Project Overview
+## Project Overview
 
 This project implements an AI agent capable of learning to navigate a Temple Run-style endless runner game through evolutionary computation. Unlike traditional deep learning approaches, this system uses neuroevolution to evolve neural network weights through genetic algorithms, creating agents that improve over successive generations.
 ![alt text](Images/image-1.png)
@@ -18,7 +18,7 @@ This project implements an AI agent capable of learning to navigate a Temple Run
 - **Real-Time Visualization**: Live gameplay with performance metrics and speed controls
 - **Sophisticated Fitness Functions**: Multi-objective optimization balancing survival, score, and movement efficiency
 
-## 🧠 Technical Architecture
+## Technical Architecture
 
 ### Neural Network Design
 
@@ -60,7 +60,7 @@ The AI processes a sophisticated state representation including:
 3. **Safety Analysis**: Forward-looking safety scores for all lanes
 4. **Predictive Modeling**: Multi-step ahead obstacle avoidance calculations
 
-## 🔥 Technical Challenges and Solutions
+## Technical Challenges and Solutions
 
 ### Challenge 1: Population Diversity Management
 **Problem**: Genetic algorithms can suffer from premature convergence, where the population becomes too similar and loses diversity.
@@ -143,7 +143,7 @@ for obstacle in game_state.obstacles:
         obstacle['counted'] = True
 ```
 
-## 🏆 Strong Technical Points
+## Strong Technical Points
 
 ### 1. Advanced Genetic Algorithm Design
 - **Nucleus Sampling**: Implementation of cutting-edge selection mechanisms from natural language processing
@@ -167,7 +167,7 @@ for obstacle in game_state.obstacles:
 - **Behavioral Emergence**: Complex behaviors emerging from simple rule sets with fitness-based color coding
 - **Pixelated Visualization**: Advanced player rendering with fitness-based visual feedback
 
-## 📊 Performance Metrics
+## Performance Metrics
 
 ### Learning Progression
 - **Generation 0**: Random behavior, average survival ~50 frames
@@ -183,7 +183,7 @@ for obstacle in game_state.obstacles:
 - **Numerical Computing**: NumPy for vectorized operations
 - **Architecture**: Object-oriented design with modular components
 
-## 🚀 Installation and Usage
+## Installation and Usage
 
 ```bash
 # Clone the repository
@@ -215,7 +215,7 @@ Temple-Run-AI/
 - **Speed Slider**: Adjust simulation speed (10-600 FPS) with real-time interactive control
 - **Real-time Metrics**: Live population statistics and performance data including active agent count, score, and obstacles avoided
 
-## 🔬 Research Applications
+## Research Applications
 
 This project demonstrates several advanced AI concepts applicable to:
 - **Evolutionary Computation Research**: Novel selection and mutation strategies
@@ -223,14 +223,14 @@ This project demonstrates several advanced AI concepts applicable to:
 - **Neural Architecture Search**: Automated network optimization
 - **Multi-Agent Systems**: Population-based learning dynamics
 
-## 📈 Future Enhancements
+## Future Enhancements
 
 - **Speciation Algorithms**: Implementing NEAT-style species protection
 - **Hierarchical Networks**: Multi-level decision architectures
 - **Transfer Learning**: Cross-environment skill transfer
 - **Parallel Evolution**: GPU-accelerated population simulation
 
-## 🎯 Key Learnings
+## Key Learnings
 
 1. **Population diversity is crucial** for avoiding local optima in evolutionary algorithms - implemented adaptive elite preservation (20%-40%)
 2. **Composite fitness functions** require careful balancing to prevent conflicting objectives - movement efficiency bonuses prevent stagnant behavior
