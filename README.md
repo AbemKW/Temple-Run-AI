@@ -5,11 +5,11 @@ A sophisticated AI implementation that learns to play an endless runner game usi
 ## 🚀 Project Overview
 
 This project implements an AI agent capable of learning to navigate a Temple Run-style endless runner game through evolutionary computation. Unlike traditional deep learning approaches, this system uses neuroevolution to evolve neural network weights through genetic algorithms, creating agents that improve over successive generations.
-![alt text](image-1.png)
+![alt text](Images\image-1.png)
 ### Key Features
 
 - **Neuroevolutionary Neural Networks**: Custom-built neural networks evolved through genetic algorithms
-![alt text](image-2.png)
+![alt text](Images\image-2.png)
 - **Population-Based Learning**: Simultaneous training of 1000+ AI agents per generation
 - **Adaptive Genetic Algorithms**: Dynamic mutation rates and advanced selection mechanisms
 - **Real-Time Visualization**: Live gameplay with performance metrics and speed controls
@@ -110,7 +110,7 @@ genome[i] = np.clip(genome[i], -2.0, 2.0)
 
 ### 1. Advanced Genetic Algorithm Design
 - **Nucleus Sampling**: Implementation of cutting-edge selection mechanisms from natural language processing
-![alt text](image.png)
+![alt text](Images\image.png)
 - **Adaptive Parameters**: Dynamic adjustment of mutation rates based on population metrics
 - **Multi-Objective Optimization**: Sophisticated fitness landscapes balancing competing objectives
 
