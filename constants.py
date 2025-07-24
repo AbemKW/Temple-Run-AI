@@ -21,7 +21,9 @@ SPAWN_TIMER_BASE = 80
 
 # Colors
 BACKGROUND_COLOR = (150, 245, 255)
-PLAYER_COLOR = (255, 0, 0)
+PLAYER_COLOR = [{"fitness": 33, "color": (255, 0, 0,140)},
+                {"fitness": 66, "color": (0, 255, 0,140)},
+                {"fitness": 100, "color": (0, 0, 255,140)}]
 OBSTACLE_COLOR = (0, 255, 0)
 LINE_COLOR = (0, 0, 0)
 TEXT_COLOR = (0, 0, 0)
@@ -34,4 +36,11 @@ DIFFICULTY_LEVELS = [
 ]
 
 # Population
-POPULATION_SIZE = 100
+POPULATION_SIZE = 250
+
+# Weights for fitness calculation
+SCORE_WEIGHT = 0.3
+SURVIVAL_WEIGHT = 0.3
+OBSTACLE_WEIGHT = 0.2
+EFFICIENCY_WEIGHT = 0.1
+MOVE_EFFICIENCY_WEIGHT = 0.1

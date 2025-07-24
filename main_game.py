@@ -1,16 +1,62 @@
 import pygame
-from game_state import GameState, check_collision, update_obstacles
+from game_state import GameState, check_collision, update_obstacles, count_obstacles_passed
 from render_state import draw_obstacles
 from player import Player
 import generation
 import constants 
 
-def handle_input( game_state):
+class SpeedSlider:
+    def __init__(self, x, y, width, height, min_val=10, max_val=120, initial_val=60):
+        self.rect = pygame.Rect(x, y, width, height)
+        self.min_val = min_val
+        self.max_val = max_val
+        self.value = initial_val
+        self.dragging = False
+        self.handle_width = 20
+        
+    def handle_event(self, event):
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if self.rect.collidepoint(event.pos):
+                self.dragging = True
+                self.update_value(event.pos[0])
+        elif event.type == pygame.MOUSEBUTTONUP:
+            self.dragging = False
+        elif event.type == pygame.MOUSEMOTION and self.dragging:
+            self.update_value(event.pos[0])
+    
+    def update_value(self, mouse_x):
+        # Calculate value based on mouse position
+        relative_x = mouse_x - self.rect.x
+        relative_x = max(0, min(relative_x, self.rect.width))
+        ratio = relative_x / self.rect.width
+        self.value = int(self.min_val + ratio * (self.max_val - self.min_val))
+    
+    def draw(self, screen, font):
+        # Draw slider track
+        pygame.draw.rect(screen, (100, 100, 100), self.rect)
+        pygame.draw.rect(screen, (50, 50, 50), self.rect, 2)
+        
+        # Draw slider handle
+        ratio = (self.value - self.min_val) / (self.max_val - self.min_val)
+        handle_x = self.rect.x + ratio * (self.rect.width - self.handle_width)
+        handle_rect = pygame.Rect(handle_x, self.rect.y - 5, self.handle_width, self.rect.height + 10)
+        pygame.draw.rect(screen, (200, 200, 200), handle_rect)
+        pygame.draw.rect(screen, (0, 0, 0), handle_rect, 2)
+        
+        # Draw label and value
+        label_text = font.render(f"Speed: {self.value} FPS", True, constants.TEXT_COLOR)
+        screen.blit(label_text, (self.rect.x, self.rect.y - 25)) 
+
+def handle_input(game_state, speed_slider):
     """Handle player input events"""
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             game_state.running = False
             return False
+        
+        # Handle slider events
+        speed_slider.handle_event(event)
+    
     return True  # Continue running if no quit event
 
 
@@ -31,19 +77,26 @@ def run_game():
     
     # Pre-create font objects to avoid recreation
     score_font = pygame.font.Font(None, 36)
+    slider_font = pygame.font.Font(None, 24)
     
+    # Create speed slider
+    speed_slider = SpeedSlider(10, 10, 200, 20, min_val=10, max_val=600, initial_val=constants.FPS)
+    
+    generation_number = 0
     game_state = GameState()
     active_players = players.copy()  # Start with all players active
     print("Starting game loop...")  # Debug output
 
     while game_state.running:
-        # Handle input
-        if not handle_input(game_state):
+        # Handle input (including slider)
+        if not handle_input(game_state, speed_slider):
             break
         
         if not active_players:
             print("All players have died")
             players = generation.NewGeneration(saved_players)
+            generation_number += 1
+            print(f"Generation {generation_number}")
             saved_players.clear()  # Clear saved players for the new generation
             game_state.reset()
             
@@ -58,16 +111,19 @@ def run_game():
             best_player = max(active_players, key=lambda p: p.score)
             # Update obstacles once per frame (using first active player for difficulty)
             update_obstacles(game_state, best_player)
-        
+        for player in active_players:
+            count_obstacles_passed(game_state, player)
         # Check for collisions for all active players
         for player in active_players:
             if check_collision(game_state, player):
                 saved_players.append(player)
                 player.game_over = True
-                print(f"Player died! Score: {player.score}, Active players: {len([p for p in players if not p.game_over])}")
-            
+ 
         # Render everything
         screen.fill(constants.BACKGROUND_COLOR)
+        
+        # Draw speed slider first (on top)
+        speed_slider.draw(screen, slider_font)
         
         # Draw lanes (static elements)
         for x in constants.LANE_LINES:
@@ -87,10 +143,10 @@ def run_game():
                 f"Score: {best_player.score}, Obstacles Avoided: {best_player.obstacle_avoided}, Active: {len(active_players)}", 
                 True, constants.TEXT_COLOR
             )
-            screen.blit(score_text, (10, 10))
+            screen.blit(score_text, (10, 50))  # Moved down to avoid slider overlap
         
         pygame.display.flip()
-        clock.tick(constants.FPS)
+        clock.tick(speed_slider.value)  # Use slider value for FPS
 
     pygame.quit()
 
