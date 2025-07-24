@@ -35,5 +35,4 @@ DIFFICULTY_LEVELS = [
     {"threshold": 200, "speed": 10, "multiplier": 2, "spawn_mod": 5}
 ]
 
-# Population - Smaller for faster training
-POPULATION_SIZE = 200
+POPULATION_SIZE = 1000
