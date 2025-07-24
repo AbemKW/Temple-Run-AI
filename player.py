@@ -9,12 +9,14 @@ class Player:
         self.fitness = 0
         self.player_lane = 1
         self.survival_time = 0
+        self.moves_made = 0
+        self.passed_obstacles = []
         self.obstacle_avoided = 0
         self.game_over = False
         if(brain is not None):
             self.brain = brain
         else:
-            self.brain = NeuralNetwork(5,10,3)
+            self.brain = NeuralNetwork(8,10,3)
         self.player_rect = pygame.Rect(
             constants.LANE_X[self.player_lane] - constants.PLAYER_WIDTH // 2, 
             constants.PLAYER_Y, 
@@ -26,15 +28,19 @@ class Player:
         """Move player left (-1) or right (1)"""
         state = self.get_state(game_state)
         action = self.brain.predict(state)
-        if action == 1:  # Move left
+        # Consider changing action mapping to encourage movement:
+        if action == 0:     # Move left
             self.move_player(-1)
-        elif action == 2:  # Move right
+        elif action == 1:   # Stay put
+            pass
+        elif action == 2:   # Move right
             self.move_player(1)
 
     def move_player(self, direction):
         new_lane = self.player_lane + direction
         if 0 <= new_lane < constants.NUM_LANES:
             self.player_lane = new_lane
+            self.moves_made += 1
             self.player_rect.x = constants.LANE_X[self.player_lane] - constants.PLAYER_WIDTH // 2
 
     def update_score(self):
@@ -45,9 +51,18 @@ class Player:
         # difficulty = self.get_difficulty_settings()
         self.score = int((base_score + bonus_score) * 1)
 
+    def get_color(self):
+        """Get color based on fitness"""
+        if self.fitness < 33:
+            return constants.PLAYER_COLOR[0]["color"]
+        elif self.fitness < 66:
+            return constants.PLAYER_COLOR[1]["color"]
+        else:
+            return constants.PLAYER_COLOR[2]["color"]
     def draw_player(self, screen):
         """Optimized player drawing using pre-calculated rect"""
-        pygame.draw.rect(screen, constants.PLAYER_COLOR, self.player_rect)
+        player_color_fitness = self.get_color()
+        pygame.draw.rect(screen, player_color_fitness, self.player_rect)
 
     def get_state(self, game_state):
         """Get the current state for AI decision making"""
@@ -70,5 +85,33 @@ class Player:
         else:
             obstacle_lane = -1
             obstacle_distance = 999
+        # info about all lane danger
 
-        return one_hot_location + [obstacle_lane, obstacle_distance]
+        # Safety score for staying in current lane
+        current_safety = self.calculate_lane_safety(self.player_lane, game_state)
+        
+        # Safety score for moving left
+        left_lane = self.player_lane - 1
+        left_safety = self.calculate_lane_safety(left_lane, game_state) if left_lane >= 0 else 0
+        
+        # Safety score for moving right  
+        right_lane = self.player_lane + 1
+        right_safety = self.calculate_lane_safety(right_lane, game_state) if right_lane < constants.NUM_LANES else 0
+
+        return one_hot_location + [obstacle_lane, obstacle_distance,current_safety, left_safety, right_safety]
+
+    def calculate_lane_safety(self, lane, game_state):
+        """Calculate how safe a lane is (0=dangerous, 1=safe)"""
+        if lane < 0 or lane >= constants.NUM_LANES:
+            return 0  # Invalid lane
+        
+        danger_score = 0
+        lane_x = constants.LANE_X[lane]
+        
+        for obstacle in game_state.obstacles:
+            if obstacle['x'] == lane_x and obstacle['y'] < self.player_rect.y:
+                distance = self.player_rect.y - obstacle['y']
+                if distance < 200:  # Danger zone
+                    danger_score += max(0, (200 - distance) / 200)
+        
+        return max(0, 1 - danger_score)
