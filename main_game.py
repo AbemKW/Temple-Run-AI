@@ -133,12 +133,14 @@ def run_game():
         draw_obstacles(screen, game_state.obstacles)
         
         # Draw all active players
-        for player in active_players:
-            player.draw_player(screen)
+        #for player in active_players:
+        #   player.draw_player(screen)
+        
 
         # Draw UI for the first active player (or best performing player)
         if active_players:
             best_player = max(active_players, key=lambda p: p.score)
+            best_player.draw_player(screen)
             score_text = score_font.render(
                 f"Score: {best_player.score}, Obstacles Avoided: {best_player.obstacle_avoided}, Active: {len(active_players)}", 
                 True, constants.TEXT_COLOR

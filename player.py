@@ -1,3 +1,4 @@
+import numpy as np
 import pygame
 import constants
 from model import NeuralNetwork
@@ -16,7 +17,7 @@ class Player:
         if(brain is not None):
             self.brain = brain
         else:
-            self.brain = NeuralNetwork(8,10,3)
+            self.brain = NeuralNetwork(8,4,3)
         self.player_rect = pygame.Rect(
             constants.LANE_X[self.player_lane] - constants.PLAYER_WIDTH // 2, 
             constants.PLAYER_Y, 
@@ -26,8 +27,9 @@ class Player:
 
     def think(self, game_state):
         """Move player left (-1) or right (1)"""
-        state = self.get_state(game_state)
+        state = np.array(self.get_state(game_state))
         action = self.brain.predict(state)
+        # action = np.argmax(1-state)
         # Consider changing action mapping to encourage movement:
         if action == 0:     # Move left
             self.move_player(-1)
@@ -53,11 +55,11 @@ class Player:
 
     def get_color(self):
         """Get color based on fitness"""
-        if self.fitness < 33:
+        if self.fitness < 0.33:
             return constants.PLAYER_COLOR[0]["color"]
-        elif self.fitness < 66:
+        elif self.fitness < 0.66:
             return constants.PLAYER_COLOR[1]["color"]
-        else:
+        elif self.fitness > 0.77:
             return constants.PLAYER_COLOR[2]["color"]
     def draw_player(self, screen):
         """Optimized player drawing using pre-calculated rect"""
@@ -105,13 +107,18 @@ class Player:
         if lane < 0 or lane >= constants.NUM_LANES:
             return 0  # Invalid lane
         
-        danger_score = 0
+        max_danger = 0  # Track the highest danger from any single obstacle
         lane_x = constants.LANE_X[lane]
         
         for obstacle in game_state.obstacles:
-            if obstacle['x'] == lane_x and obstacle['y'] < self.player_rect.y:
+            if obstacle['x'] == lane_x:
+                # Calculate distance (positive = obstacle is above player, negative = below)
                 distance = self.player_rect.y - obstacle['y']
-                if distance < 200:  # Danger zone
-                    danger_score += max(0, (200 - distance) / 200)
+                
+                # Only consider obstacles above the player that pose a threat
+                if distance > 0 and distance < 300:  # Look ahead 300 pixels up
+                    # Closer obstacles are more dangerous (inverse relationship)
+                    danger = max(0, (300 - distance) / 300)
+                    max_danger = max(max_danger, danger)  # Keep the highest danger
         
-        return max(0, 1 - danger_score)
+        return 1 - max_danger  # Convert danger to safety (1=safe, 0=dangerous)

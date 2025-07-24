@@ -36,7 +36,7 @@ DIFFICULTY_LEVELS = [
 ]
 
 # Population
-POPULATION_SIZE = 250
+POPULATION_SIZE = 1000
 
 # Weights for fitness calculation
 SCORE_WEIGHT = 0.3
